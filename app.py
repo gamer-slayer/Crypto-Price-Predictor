@@ -1,18 +1,21 @@
-import streamlit as st
-from crypto_predictor import train_model, fetch_crypto_data
+import pickle
+import numpy as np
+from flask import Flask, request, jsonify
 
-st.title("Crypto Price Predictor 🚀")
+app = Flask(__name__)
 
-crypto = st.selectbox("Choose Cryptocurrency", ["bitcoin", "ethereum"])
+# Load the trained model
+model = pickle.load(open('crypto_price_model.pkl', 'rb'))
 
-df = fetch_crypto_data(crypto)
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        data = request.json  # Get JSON data from request
+        features = np.array(data['features']).reshape(1, -1)
+        prediction = model.predict(features)  # Predict price
+        return jsonify({'prediction': float(prediction[0])})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
-st.subheader(f"Last 30 Days {crypto.capitalize()} Prices")
-st.line_chart(df.set_index("timestamp")["price"])
-
-model = train_model()
-latest_price = df['price'].iloc[-1]
-
-predicted_price = model.predict([[latest_price]])[0]
-
-st.subheader(f"Prediction for Next Day: ${predicted_price:.2f}")
+if __name__ == '__main__':
+    app.run(debug=True)
