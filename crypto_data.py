@@ -5,7 +5,7 @@ def fetch_crypto_data(crypto='bitcoin'):
     url = f"https://api.coingecko.com/api/v3/coins/{crypto}/market_chart"
     params = {
         "vs_currency": "usd",
-        "days": "30",  
+        "days": "30",  # Last 30 days data
         "interval": "daily"
     }
     
@@ -21,7 +21,7 @@ def fetch_crypto_data(crypto='bitcoin'):
         print("Error fetching data")
         return None
 
-
+# Test fetching Bitcoin Data
 if __name__ == "__main__":
     df = fetch_crypto_data()
     print(df.head())  
